@@ -1,91 +1,56 @@
-let isPlayerOneTurn = true;
-let gameOver = false;
+const submitBtn = document.getElementById("submit");
+const playerForm = document.getElementById("player-form");
+const gameDiv = document.getElementById("game");
+const messageDiv = document.querySelector(".message");
+const cells = document.querySelectorAll(".cell");
 
-const playerTurnInfo = document.getElementById("player-turn-info");
-const form = document.getElementById("player-form");
-const gameBoard = document.getElementById("game-board");
-const gameArea = document.getElementById("game-area");
+let player1, player2;
+let currentPlayer = "x";
+let board = ["", "", "", "", "", "", "", "", ""];
+let gameActive = true;
 
-const playerOneSelections = [];
-const playerTwoSelections = [];
-
-const winnerCombination = [
-  ['R1-C1','R1-C2','R1-C3'],
-  ['R2-C1','R2-C2','R2-C3'],
-  ['R3-C1','R3-C2','R3-C3'],
-  ['R1-C1','R2-C1','R3-C1'],
-  ['R1-C2','R2-C2','R3-C2'],
-  ['R1-C3','R2-C3','R3-C3'],
-  ['R1-C1','R2-C2','R3-C3'],
-  ['R1-C3','R2-C2','R3-C1']
+const winningCombos = [
+  [0,1,2], [3,4,5], [6,7,8],
+  [0,3,6], [1,4,7], [2,5,8],
+  [0,4,8], [2,4,6]
 ];
 
-form.addEventListener("submit", storePlayerDetails);
+submitBtn.addEventListener("click", () => {
+  player1 = document.getElementById("player1").value;
+  player2 = document.getElementById("player2").value;
 
-function createBoxes(id) {
-  const box = document.createElement("div");
-  box.classList.add("box");
-  box.id = id;
-  box.addEventListener("click", playerTurn);
-  gameBoard.appendChild(box);
-}
+  if (!player1 || !player2) return;
 
-let row = 1;
-let column = 1;
+  playerForm.style.display = "none";
+  gameDiv.style.display = "block";
+  messageDiv.textContent = `${player1}, you're up`;
+});
 
-for (let i = 1; i <= 9; i++) {
-  const id = `R${row}-C${column}`;
-  createBoxes(id);
+cells.forEach((cell, index) => {
+  cell.addEventListener("click", () => handleMove(cell, index));
+});
 
-  if (i % 3 === 0) {
-    row++;
-    column = 1;
-  } else {
-    column++;
-  }
-}
+function handleMove(cell, index) {
+  if (board[index] !== "" || !gameActive) return;
 
-function playerTurn(e) {
-  if (gameOver || e.target.innerText) return;
+  board[index] = currentPlayer;
+  cell.textContent = currentPlayer;
 
-  e.target.style.backgroundColor = "rgb(238,199,200)";
-
-  if (isPlayerOneTurn) {
-    e.target.innerText = "X";
-    playerOneSelections.push(e.target.id);
-    playerTurnInfo.innerText = `It's ${localStorage.getItem("player2")}'s turn`;
-  } else {
-    e.target.innerText = "O";
-    playerTwoSelections.push(e.target.id);
-    playerTurnInfo.innerText = `It's ${localStorage.getItem("player1")}'s turn`;
+  if (checkWinner()) {
+    const winnerName = currentPlayer === "x" ? player1 : player2;
+    messageDiv.textContent = `${winnerName} congratulations you won!`;
+    gameActive = false;
+    return;
   }
 
-  isPlayerOneTurn = !isPlayerOneTurn;
-  findWinner();
+  currentPlayer = currentPlayer === "x" ? "o" : "x";
+  const nextName = currentPlayer === "x" ? player1 : player2;
+  messageDiv.textContent = `${nextName}, you're up`;
 }
 
-function findWinner() {
-  for (let combo of winnerCombination) {
-    if (combo.every(id => playerOneSelections.includes(id))) {
-      playerTurnInfo.innerText = `${localStorage.getItem("player1")} won!`;
-      gameOver = true;
-      return;
-    }
-    if (combo.every(id => playerTwoSelections.includes(id))) {
-      playerTurnInfo.innerText = `${localStorage.getItem("player2")} won!`;
-      gameOver = true;
-      return;
-    }
-  }
-
-  if (playerOneSelections.length + playerTwoSelections.length === 9) {
-    playerTurnInfo.innerText = "It's a draw!";
-    gameOver = true;
-  }
+function checkWinner() {
+  return winningCombos.some(combo => {
+    const [a, b, c] = combo;
+    return board[a] && board[a] === board[b] && board[a] === board[c];
+  });
 }
-
-function storePlayerDetails(e) {
-  e.preventDefault();
-
-  const player1 = document.getElementById("player-1").value;
-  const player2 = document.getElementById("player-2").val
