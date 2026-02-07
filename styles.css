@@ -12,19 +12,20 @@ body{
 .hide{
 	display:none;
 }
-.game-board{
-	height:400px;
-	width:400px;
-	border: 1px solid black;
-	display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr)
+.game-board {
+  height: 360px;
+  width: 360px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  border: 2px solid black;
 }
-.box{
-	border: 1px solid black;
-	background-color: rgb(230, 175, 184);
-	font-size: xx-large;
-	text-align:center;
-	align-content: center;
-	transition: background 1s ease 2s;
+
+.cell {
+  border: 1px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 40px;
+  cursor: pointer;
 }
